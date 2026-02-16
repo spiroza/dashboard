@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <style>
+    :root {
+      --bg: #1a1a2e;
+      --card-bg: #16213e;
+      --border: #0f3460;
+      --text: #e0e0e0;
+      --text-muted: #aaa;
+      --text-dim: #888;
+      --text-faint: #666;
+      --text-hint: #555;
+      --btn-reset-bg: #333;
+      --btn-reset-text: #ccc;
+      --arc-night-traveled: #555;
+    }
+
+    [data-theme="light"] {
+      --bg: #f0f2f5;
+      --card-bg: #ffffff;
+      --border: #d1d9e6;
+      --text: #1a1a2e;
+      --text-muted: #555;
+      --text-dim: #777;
+      --text-faint: #999;
+      --text-hint: #aaa;
+      --btn-reset-bg: #e0e0e0;
+      --btn-reset-text: #333;
+      --arc-night-traveled: #bbb;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 40px 20px;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .dashboard {
+      max-width: 1100px;
+      width: 100%;
+      position: relative;
+    }
+
+    .top-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 24px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 28px;
+      border: 1px solid var(--border);
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .card-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-dim);
+      margin-bottom: 16px;
+    }
+
+    /* Theme toggle */
+    .theme-toggle {
+      position: absolute;
+      top: -8px;
+      right: 0;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+      transition: background 0.3s, border-color 0.3s;
+      z-index: 10;
+    }
+
+    .theme-toggle:hover { opacity: 0.8; }
+
+    /* Clock & Sun */
+    .clock-section { text-align: center; }
+
+    .clock-time {
+      font-size: 64px;
+      font-weight: 200;
+      letter-spacing: 2px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .clock-date {
+      font-size: 16px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .sun-arc-wrap {
+      margin-top: 16px;
+      position: relative;
+    }
+
+    .sun-arc-wrap svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .sun-times {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 4px;
+    }
+
+    .sun-item {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .sun-label {
+      font-size: 11px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .sun-value {
+      font-size: 16px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Weather */
+    .weather-section { text-align: center; }
+
+    .weather-main {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .weather-icon {
+      font-size: 48px;
+      line-height: 1;
+    }
+
+    .weather-temp {
+      font-size: 48px;
+      font-weight: 300;
+    }
+
+    .weather-desc {
+      font-size: 16px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .weather-details {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .weather-detail {
+      text-align: center;
+    }
+
+    .weather-detail-label {
+      font-size: 11px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .weather-detail-value {
+      font-size: 18px;
+      margin-top: 2px;
+    }
+
+    /* Pomodoro */
+    .pomodoro-section { text-align: center; }
+
+    .pomo-timer {
+      font-size: 56px;
+      font-weight: 200;
+      font-variant-numeric: tabular-nums;
+      margin-bottom: 8px;
+    }
+
+    .pomo-status {
+      font-size: 13px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 20px;
+    }
+
+    .pomo-status.work { color: #e94560; }
+    .pomo-status.break { color: #4ecca3; }
+
+    .pomo-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .pomo-btn {
+      padding: 8px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: opacity 0.2s;
+    }
+
+    .pomo-btn:hover { opacity: 0.85; }
+
+    .pomo-btn.start {
+      background: #e94560;
+      color: #fff;
+    }
+
+    .pomo-btn.pause {
+      background: #f0a500;
+      color: #1a1a2e;
+    }
+
+    .pomo-btn.break {
+      background: #4ecca3;
+      color: #1a1a2e;
+    }
+
+    .pomo-btn.reset {
+      background: var(--btn-reset-bg);
+      color: var(--btn-reset-text);
+    }
+
+    .pomo-settings {
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .pomo-setting {
+      text-align: center;
+    }
+
+    .pomo-setting label {
+      display: block;
+      font-size: 11px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .pomo-setting input {
+      width: 60px;
+      padding: 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 16px;
+      text-align: center;
+      transition: background 0.3s, color 0.3s, border-color 0.3s;
+    }
+
+    .pomo-setting input:focus {
+      outline: none;
+      border-color: #e94560;
+    }
+
+    /* Forecast */
+    .forecast-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .forecast-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 4px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+
+    .forecast-row:last-child { border-bottom: none; }
+
+    .forecast-day {
+      width: 44px;
+      font-weight: 500;
+      text-align: left;
+    }
+
+    .forecast-icon { width: 28px; text-align: center; font-size: 18px; }
+    .forecast-desc { flex: 1; color: var(--text-muted); margin-left: 8px; text-align: left; font-size: 12px; }
+    .forecast-temps { width: 80px; text-align: right; font-variant-numeric: tabular-nums; }
+
+    .loading { color: var(--text-faint); font-style: italic; }
+
+    /* Home Bookmarks */
+    .home-section { margin-top: 24px; }
+    .home-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      min-height: 80px;
+      align-items: flex-start;
+      align-content: flex-start;
+      padding: 8px;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      transition: border-color 0.2s;
+    }
+    .home-grid.drag-over {
+      border-color: var(--text-muted);
+      border-style: dashed;
+    }
+    .home-item {
+      width: 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      color: var(--text);
+      cursor: pointer;
+      padding: 8px 4px;
+      border-radius: 10px;
+      transition: background 0.15s, opacity 0.2s;
+      user-select: none;
+    }
+    .home-item:hover { background: var(--border); }
+    .home-item.dragging { opacity: 0.3; }
+    .home-item img {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      pointer-events: none;
+    }
+    .home-item .home-fallback {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      pointer-events: none;
+    }
+    .home-item .home-name {
+      font-size: 12px;
+      max-width: 80px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-align: center;
+    }
+    .home-empty {
+      width: 100%;
+      text-align: center;
+      color: var(--text-hint);
+      font-size: 14px;
+      padding: 24px 0;
+    }
+    .home-context-menu {
+      position: fixed;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      z-index: 1000;
+      overflow: hidden;
+      min-width: 120px;
+    }
+    .home-ctx-item {
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text);
+      transition: background 0.15s;
+    }
+    .home-ctx-item:hover { background: var(--border); }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle light/dark mode">🌙</button>
+    <div class="top-row">
+      <!-- Clock & Sunrise/Sunset -->
+      <div class="card clock-section">
+        <div class="card-label">Clock</div>
+        <div class="clock-time" id="clock" style="cursor:pointer" onclick="toggleClockFormat()">--:--:--</div>
+        <div class="clock-date" id="clock-date"></div>
+        <div class="sun-arc-wrap">
+          <svg id="sun-arc-svg" viewBox="0 0 200 70" preserveAspectRatio="xMidYMid meet">
+            <!-- arc path: semicircle above horizon -->
+            <path id="arc-path" d="M 20,55 A 80,50 0 0 1 180,55" fill="none" stroke="var(--border)" stroke-width="2" stroke-dasharray="4,4"/>
+            <!-- traveled portion -->
+            <path id="arc-traveled" d="M 20,55 A 80,50 0 0 1 180,55" fill="none" stroke="#f0a500" stroke-width="2.5" stroke-dasharray="0,999"/>
+            <!-- horizon line -->
+            <line x1="14" y1="55" x2="186" y2="55" stroke="var(--border)" stroke-width="1"/>
+            <!-- sun dot -->
+            <circle id="sun-dot" cx="20" cy="55" r="5" fill="#f0a500"/>
+            <!-- night: below horizon arc (subtle) -->
+            <path id="arc-night" d="M 20,55 A 80,50 0 0 0 180,55" fill="none" stroke="none" stroke-width="1.5" stroke-dasharray="4,4"/>
+            <circle id="moon-dot" cx="20" cy="55" r="4" fill="#4a6fa5" style="display:none"/>
+          </svg>
+          <div class="sun-times">
+            <div class="sun-item">
+              <div class="sun-label">Sunrise</div>
+              <div class="sun-value" id="sunrise">--:--</div>
+            </div>
+            <div class="sun-item">
+              <div class="sun-label">Sunset</div>
+              <div class="sun-value" id="sunset">--:--</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weather -->
+      <div class="card weather-section" style="cursor:pointer" onclick="toggleWeatherView()">
+        <div class="card-label">Weather <span id="weather-toggle-hint" style="font-size:10px;color:var(--text-hint)">(click for forecast)</span></div>
+        <div id="weather-today">
+          <div class="weather-main">
+            <div class="weather-icon" id="weather-icon">--</div>
+            <div class="weather-temp" id="weather-temp">--</div>
+          </div>
+          <div class="weather-desc" id="weather-desc">Loading...</div>
+          <div class="weather-details">
+            <div class="weather-detail">
+              <div class="weather-detail-label">Wind</div>
+              <div class="weather-detail-value" id="weather-wind">--</div>
+            </div>
+            <div class="weather-detail">
+              <div class="weather-detail-label">Humidity</div>
+              <div class="weather-detail-value" id="weather-humidity">--</div>
+            </div>
+            <div class="weather-detail">
+              <div class="weather-detail-label">High / Low</div>
+              <div class="weather-detail-value" id="weather-highlow">--</div>
+            </div>
+          </div>
+        </div>
+        <div id="weather-forecast" style="display:none">
+          <div class="forecast-list" id="forecast-list"></div>
+        </div>
+      </div>
+
+      <!-- Pomodoro -->
+      <div class="card pomodoro-section">
+        <div class="card-label">Pomodoro</div>
+        <div class="pomo-timer" id="pomo-timer">25:00</div>
+        <div class="pomo-status" id="pomo-status">Ready</div>
+        <div class="pomo-buttons">
+          <button class="pomo-btn start" id="pomo-start" onclick="pomoStart()">Start</button>
+          <button class="pomo-btn pause" id="pomo-pause" onclick="pomoPause()" style="display:none">Pause</button>
+          <button class="pomo-btn break" id="pomo-break" onclick="pomoBreak()">Break</button>
+          <button class="pomo-btn reset" onclick="pomoReset()">Reset</button>
+        </div>
+        <div class="pomo-settings">
+          <div class="pomo-setting">
+            <label>Work (min)</label>
+            <input type="number" id="pomo-work-min" value="25" min="1" max="120" onchange="pomoUpdateSettings()">
+          </div>
+          <div class="pomo-setting">
+            <label>Break (min)</label>
+            <input type="number" id="pomo-break-min" value="5" min="1" max="60" onchange="pomoUpdateSettings()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card home-section">
+      <div class="card-label">Home</div>
+      <div class="home-grid" id="home-grid">
+        <div class="home-empty" id="home-empty">Drag links here</div>
+      </div>
+    </div>
+    <div class="home-context-menu" id="home-context-menu" style="display:none">
+      <div class="home-ctx-item" data-action="edit">Edit</div>
+      <div class="home-ctx-item" data-action="delete">Delete</div>
+    </div>
+  </div>
+
+  <script>
+    // ── Theme Toggle ──────────────────────────────────────
+    (function() {
+      const saved = localStorage.getItem('theme');
+      if (saved) document.documentElement.setAttribute('data-theme', saved);
+      updateThemeIcon();
+    })();
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'light' ? 'dark' : 'light';
+      if (next === 'dark') {
+        document.documentElement.removeAttribute('data-theme');
+      } else {
+        document.documentElement.setAttribute('data-theme', next);
+      }
+      localStorage.setItem('theme', next);
+      updateThemeIcon();
+    }
+
+    function updateThemeIcon() {
+      const btn = document.getElementById('theme-toggle');
+      if (!btn) return;
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      btn.textContent = isLight ? '☀️' : '🌙';
+    }
+
+    // ── Clock ──────────────────────────────────────────────
+    let clock24 = true;
+
+    function toggleClockFormat() {
+      clock24 = !clock24;
+      updateClock();
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const m = String(now.getMinutes()).padStart(2, '0');
+      const s = String(now.getSeconds()).padStart(2, '0');
+
+      if (clock24) {
+        const h = String(now.getHours()).padStart(2, '0');
+        document.getElementById('clock').textContent = `${h}:${m}:${s}`;
+      } else {
+        let h = now.getHours();
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12 || 12;
+        document.getElementById('clock').textContent = `${h}:${m}:${s} ${ampm}`;
+      }
+
+      const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('clock-date').textContent = now.toLocaleDateString(undefined, opts);
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // ── Weather (Open-Meteo, no API key) ──────────────────
+    const WMO_CODES = {
+      0: ['Clear sky', '\u2600\uFE0F'],
+      1: ['Mainly clear', '\uD83C\uDF24\uFE0F'],
+      2: ['Partly cloudy', '\u26C5'],
+      3: ['Overcast', '\u2601\uFE0F'],
+      45: ['Fog', '\uD83C\uDF2B\uFE0F'],
+      48: ['Rime fog', '\uD83C\uDF2B\uFE0F'],
+      51: ['Light drizzle', '\uD83C\uDF26\uFE0F'],
+      53: ['Drizzle', '\uD83C\uDF26\uFE0F'],
+      55: ['Dense drizzle', '\uD83C\uDF27\uFE0F'],
+      61: ['Light rain', '\uD83C\uDF26\uFE0F'],
+      63: ['Rain', '\uD83C\uDF27\uFE0F'],
+      65: ['Heavy rain', '\uD83C\uDF27\uFE0F'],
+      71: ['Light snow', '\uD83C\uDF28\uFE0F'],
+      73: ['Snow', '\u2744\uFE0F'],
+      75: ['Heavy snow', '\u2744\uFE0F'],
+      77: ['Snow grains', '\u2744\uFE0F'],
+      80: ['Light showers', '\uD83C\uDF26\uFE0F'],
+      81: ['Showers', '\uD83C\uDF27\uFE0F'],
+      82: ['Heavy showers', '\u26C8\uFE0F'],
+      85: ['Light snow showers', '\uD83C\uDF28\uFE0F'],
+      86: ['Snow showers', '\uD83C\uDF28\uFE0F'],
+      95: ['Thunderstorm', '\u26C8\uFE0F'],
+      96: ['Thunderstorm + hail', '\u26C8\uFE0F'],
+      99: ['Thunderstorm + heavy hail', '\u26C8\uFE0F'],
+    };
+
+    function formatTime12(isoStr) {
+      const d = new Date(isoStr);
+      let h = d.getHours();
+      const m = String(d.getMinutes()).padStart(2, '0');
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      return `${h}:${m} ${ampm}`;
+    }
+
+    function getLocation() {
+      return new Promise((resolve, reject) => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            pos => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+            () => {
+              // Fallback: IP geolocation
+              fetch('https://ipapi.co/json/')
+                .then(r => r.json())
+                .then(geo => resolve({ lat: geo.latitude, lon: geo.longitude }))
+                .catch(reject);
+            }
+          );
+        } else {
+          fetch('https://ipapi.co/json/')
+            .then(r => r.json())
+            .then(geo => resolve({ lat: geo.latitude, lon: geo.longitude }))
+            .catch(reject);
+        }
+      });
+    }
+
+    async function fetchWeather() {
+      try {
+        const { lat, lon } = await getLocation();
+
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`
+          + `&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m`
+          + `&daily=temperature_2m_max,temperature_2m_min,weather_code,sunrise,sunset`
+          + `&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`;
+
+        const data = await fetch(url).then(r => r.json());
+        const cur = data.current;
+        const daily = data.daily;
+
+        const code = cur.weather_code;
+        const [desc, icon] = WMO_CODES[code] || ['Unknown', '\u2753'];
+
+        document.getElementById('weather-icon').textContent = icon;
+        document.getElementById('weather-temp').textContent = `${Math.round(cur.temperature_2m)}\u00B0F`;
+        document.getElementById('weather-desc').textContent = desc;
+        document.getElementById('weather-wind').textContent = `${Math.round(cur.wind_speed_10m)} mph`;
+        document.getElementById('weather-humidity').textContent = `${cur.relative_humidity_2m}%`;
+        document.getElementById('weather-highlow').textContent =
+          `${Math.round(daily.temperature_2m_max[0])}\u00B0 / ${Math.round(daily.temperature_2m_min[0])}\u00B0`;
+
+        document.getElementById('sunrise').textContent = formatTime12(daily.sunrise[0]);
+        document.getElementById('sunset').textContent = formatTime12(daily.sunset[0]);
+
+        // Build 7-day forecast
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const listEl = document.getElementById('forecast-list');
+        listEl.innerHTML = '';
+        for (let i = 0; i < daily.time.length; i++) {
+          const d = new Date(daily.time[i] + 'T12:00:00');
+          const dayLabel = i === 0 ? 'Today' : dayNames[d.getDay()];
+          const [fdesc, ficon] = WMO_CODES[daily.weather_code[i]] || ['Unknown', '\u2753'];
+          const hi = Math.round(daily.temperature_2m_max[i]);
+          const lo = Math.round(daily.temperature_2m_min[i]);
+          const row = document.createElement('div');
+          row.className = 'forecast-row';
+          row.innerHTML = `<span class="forecast-day">${dayLabel}</span>`
+            + `<span class="forecast-icon">${ficon}</span>`
+            + `<span class="forecast-desc">${fdesc}</span>`
+            + `<span class="forecast-temps">${hi}\u00B0 / ${lo}\u00B0</span>`;
+          listEl.appendChild(row);
+        }
+
+        // Store sun times for daylight bar
+        sunTimes.rise = new Date(daily.sunrise[0]);
+        sunTimes.set = new Date(daily.sunset[0]);
+        updateSunArc();
+      } catch (err) {
+        document.getElementById('weather-desc').textContent = 'Could not load weather';
+        console.error('Weather fetch error:', err);
+      }
+    }
+
+    fetchWeather();
+    // Refresh weather every 15 minutes
+    setInterval(fetchWeather, 15 * 60 * 1000);
+
+    let weatherShowForecast = false;
+    function toggleWeatherView() {
+      weatherShowForecast = !weatherShowForecast;
+      document.getElementById('weather-today').style.display = weatherShowForecast ? 'none' : '';
+      document.getElementById('weather-forecast').style.display = weatherShowForecast ? '' : 'none';
+      document.getElementById('weather-toggle-hint').textContent =
+        weatherShowForecast ? '(click for today)' : '(click for forecast)';
+    }
+
+    // ── Sun Arc ───────────────────────────────────────────
+    const sunTimes = { rise: null, set: null };
+
+    function getPointOnArc(path, fraction) {
+      const len = path.getTotalLength();
+      const pt = path.getPointAtLength(fraction * len);
+      return pt;
+    }
+
+    function updateSunArc() {
+      if (!sunTimes.rise || !sunTimes.set) return;
+      const now = new Date();
+      const rise = sunTimes.rise.getTime();
+      const set = sunTimes.set.getTime();
+      const nowMs = now.getTime();
+
+      const dayArc = document.getElementById('arc-path');
+      const dayTraveled = document.getElementById('arc-traveled');
+      const nightArc = document.getElementById('arc-night');
+      const sunDot = document.getElementById('sun-dot');
+      const moonDot = document.getElementById('moon-dot');
+      const dayLen = dayArc.getTotalLength();
+
+      if (nowMs >= rise && nowMs <= set) {
+        // Daytime
+        const pct = Math.min(1, Math.max(0, (nowMs - rise) / (set - rise)));
+        const pt = getPointOnArc(dayArc, pct);
+
+        sunDot.style.display = '';
+        moonDot.style.display = 'none';
+        sunDot.setAttribute('cx', pt.x);
+        sunDot.setAttribute('cy', pt.y);
+
+        // Show traveled portion of day arc
+        dayTraveled.setAttribute('stroke-dasharray', `${pct * dayLen},${dayLen}`);
+        nightArc.setAttribute('stroke', 'none');
+      } else {
+        // Nighttime
+        let nightStart, nightEnd;
+        if (nowMs > set) {
+          nightStart = set;
+          nightEnd = rise + 24 * 60 * 60 * 1000;
+        } else {
+          nightStart = set - 24 * 60 * 60 * 1000;
+          nightEnd = rise;
+        }
+        const pct = Math.min(1, Math.max(0, (nowMs - nightStart) / (nightEnd - nightStart)));
+        const pt = getPointOnArc(nightArc, pct);
+
+        sunDot.style.display = 'none';
+        moonDot.style.display = '';
+        moonDot.setAttribute('cx', pt.x);
+        moonDot.setAttribute('cy', pt.y);
+
+        // Full day arc is past, show night arc
+        dayTraveled.setAttribute('stroke-dasharray', `${dayLen},0`);
+        dayTraveled.setAttribute('stroke', getComputedStyle(document.documentElement).getPropertyValue('--arc-night-traveled').trim() || '#555');
+        nightArc.setAttribute('stroke', '#2a4a7f');
+      }
+    }
+
+    // Update arc every minute
+    setInterval(updateSunArc, 60 * 1000);
+
+    // ── Sounds (Web Audio API) ─────────────────────────────
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playTone(freq, duration, type = 'sine') {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function playWorkDone() {
+      // Pleasant ascending chime
+      playTone(523, 0.3);  // C5
+      setTimeout(() => playTone(659, 0.3), 150);  // E5
+      setTimeout(() => playTone(784, 0.5), 300);  // G5
+      setTimeout(() => playTone(1047, 0.6), 500); // C6
+    }
+
+    function playBreakDone() {
+      // Gentle two-tone nudge
+      playTone(440, 0.25); // A4
+      setTimeout(() => playTone(554, 0.25), 200); // C#5
+      setTimeout(() => playTone(440, 0.25), 400); // A4
+      setTimeout(() => playTone(554, 0.4), 600);  // C#5
+    }
+
+    function playTick() {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = 800;
+      gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.05);
+    }
+
+    // ── Pomodoro ──────────────────────────────────────────
+    const savedWork = localStorage.getItem('pomo-work-min');
+    const savedBreak = localStorage.getItem('pomo-break-min');
+    if (savedWork) document.getElementById('pomo-work-min').value = savedWork;
+    if (savedBreak) document.getElementById('pomo-break-min').value = savedBreak;
+
+    let pomoState = 'idle'; // idle | running | paused
+    let pomoMode = 'work';  // work | break
+    let pomoSecondsLeft = (parseInt(savedWork) || 25) * 60;
+    let pomoInterval = null;
+
+    function pomoDisplay() {
+      const m = String(Math.floor(pomoSecondsLeft / 60)).padStart(2, '0');
+      const s = String(pomoSecondsLeft % 60).padStart(2, '0');
+      document.getElementById('pomo-timer').textContent = `${m}:${s}`;
+
+      const statusEl = document.getElementById('pomo-status');
+      statusEl.className = 'pomo-status';
+      if (pomoState === 'idle') {
+        statusEl.textContent = 'Ready';
+      } else if (pomoState === 'paused') {
+        statusEl.textContent = pomoMode === 'work' ? 'Paused (Work)' : 'Paused (Break)';
+        statusEl.classList.add(pomoMode);
+      } else {
+        statusEl.textContent = pomoMode === 'work' ? 'Working' : 'On Break';
+        statusEl.classList.add(pomoMode);
+      }
+
+      const startBtn = document.getElementById('pomo-start');
+      const pauseBtn = document.getElementById('pomo-pause');
+      if (pomoState === 'running') {
+        startBtn.style.display = 'none';
+        pauseBtn.style.display = '';
+      } else {
+        startBtn.style.display = '';
+        pauseBtn.style.display = 'none';
+        startBtn.textContent = pomoState === 'paused' ? 'Resume' : 'Start';
+      }
+    }
+
+    function pomoTick() {
+      if (pomoSecondsLeft <= 0) {
+        clearInterval(pomoInterval);
+        pomoInterval = null;
+        pomoState = 'idle';
+
+        // Sound + Notify
+        if (pomoMode === 'work') { playWorkDone(); } else { playBreakDone(); }
+        if (Notification.permission === 'granted') {
+          new Notification(pomoMode === 'work' ? 'Work session complete!' : 'Break is over!');
+        }
+
+        // Switch mode
+        pomoMode = pomoMode === 'work' ? 'break' : 'work';
+        const mins = pomoMode === 'work'
+          ? parseInt(document.getElementById('pomo-work-min').value) || 25
+          : parseInt(document.getElementById('pomo-break-min').value) || 5;
+        pomoSecondsLeft = mins * 60;
+        pomoDisplay();
+        return;
+      }
+      pomoSecondsLeft--;
+      if (pomoSecondsLeft <= 10 && pomoSecondsLeft > 0) { playTick(); }
+      pomoDisplay();
+    }
+
+    function pomoStart() {
+      if (pomoState === 'running') return;
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      pomoState = 'running';
+      pomoInterval = setInterval(pomoTick, 1000);
+      pomoDisplay();
+
+      // Request notification permission
+      if (Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+    }
+
+    function pomoPause() {
+      if (pomoState !== 'running') return;
+      pomoState = 'paused';
+      clearInterval(pomoInterval);
+      pomoInterval = null;
+      pomoDisplay();
+    }
+
+    function pomoBreak() {
+      clearInterval(pomoInterval);
+      pomoInterval = null;
+      pomoMode = 'break';
+      const mins = parseInt(document.getElementById('pomo-break-min').value) || 5;
+      pomoSecondsLeft = mins * 60;
+      pomoState = 'idle';
+      pomoDisplay();
+    }
+
+    function pomoReset() {
+      clearInterval(pomoInterval);
+      pomoInterval = null;
+      pomoMode = 'work';
+      const mins = parseInt(document.getElementById('pomo-work-min').value) || 25;
+      pomoSecondsLeft = mins * 60;
+      pomoState = 'idle';
+      pomoDisplay();
+    }
+
+    function pomoUpdateSettings() {
+      const workVal = document.getElementById('pomo-work-min').value;
+      const breakVal = document.getElementById('pomo-break-min').value;
+      localStorage.setItem('pomo-work-min', workVal);
+      localStorage.setItem('pomo-break-min', breakVal);
+      if (pomoState === 'idle') {
+        const mins = pomoMode === 'work'
+          ? parseInt(workVal) || 25
+          : parseInt(breakVal) || 5;
+        pomoSecondsLeft = mins * 60;
+        pomoDisplay();
+      }
+    }
+
+    pomoDisplay();
+
+    // ── Home Bookmarks ──────────────────────────────────────
+    let homeLinks = JSON.parse(localStorage.getItem('home-links') || '[]');
+    const homeGrid = document.getElementById('home-grid');
+    const homeEmpty = document.getElementById('home-empty');
+    const homeCtxMenu = document.getElementById('home-context-menu');
+    let homeCtxTargetId = null;
+    let homeDragId = null;
+
+    const fallbackColors = ['#e94560','#4ecca3','#f0a500','#3498db','#9b59b6','#1abc9c','#e67e22','#2ecc71'];
+
+    function saveHomeLinks() {
+      localStorage.setItem('home-links', JSON.stringify(homeLinks));
+    }
+
+    function renderHomeLinks() {
+      homeGrid.querySelectorAll('.home-item').forEach(el => el.remove());
+      homeEmpty.style.display = homeLinks.length ? 'none' : '';
+
+      homeLinks.forEach(link => {
+        const a = document.createElement('a');
+        a.href = link.url;
+        a.className = 'home-item';
+        a.draggable = true;
+        a.dataset.id = link.id;
+
+        const img = document.createElement('img');
+        try {
+          const domain = new URL(link.url).hostname;
+          img.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
+        } catch { img.src = ''; }
+        img.onerror = function() {
+          const fb = document.createElement('div');
+          fb.className = 'home-fallback';
+          fb.style.background = fallbackColors[link.id % fallbackColors.length];
+          fb.textContent = (link.name || '?')[0].toUpperCase();
+          this.replaceWith(fb);
+        };
+        a.appendChild(img);
+
+        const span = document.createElement('span');
+        span.className = 'home-name';
+        span.textContent = link.name;
+        a.appendChild(span);
+
+        // Internal drag
+        a.addEventListener('dragstart', e => {
+          homeDragId = link.id;
+          e.dataTransfer.setData('text/plain', String(link.id));
+          e.dataTransfer.effectAllowed = 'move';
+          requestAnimationFrame(() => a.classList.add('dragging'));
+        });
+        a.addEventListener('dragend', () => {
+          a.classList.remove('dragging');
+          homeDragId = null;
+        });
+
+        // Right-click
+        a.addEventListener('contextmenu', e => {
+          e.preventDefault();
+          e.stopPropagation();
+          homeCtxTargetId = link.id;
+          homeCtxMenu.style.display = '';
+          homeCtxMenu.style.left = e.clientX + 'px';
+          homeCtxMenu.style.top = e.clientY + 'px';
+        });
+
+        homeGrid.appendChild(a);
+      });
+    }
+
+    // Drop zone events
+    homeGrid.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = homeDragId !== null ? 'move' : 'copy';
+      homeGrid.classList.add('drag-over');
+    });
+    homeGrid.addEventListener('dragleave', e => {
+      if (!homeGrid.contains(e.relatedTarget)) homeGrid.classList.remove('drag-over');
+    });
+    homeGrid.addEventListener('drop', e => {
+      e.preventDefault();
+      homeGrid.classList.remove('drag-over');
+
+      if (homeDragId !== null) {
+        // Internal reorder
+        const dragIdx = homeLinks.findIndex(l => l.id === homeDragId);
+        if (dragIdx === -1) return;
+        const items = [...homeGrid.querySelectorAll('.home-item:not(.dragging)')];
+        let dropIdx = items.length;
+        for (let i = 0; i < items.length; i++) {
+          const rect = items[i].getBoundingClientRect();
+          if (e.clientX < rect.left + rect.width / 2) { dropIdx = homeLinks.findIndex(l => String(l.id) === items[i].dataset.id); break; }
+        }
+        const [moved] = homeLinks.splice(dragIdx, 1);
+        const insertIdx = dropIdx > dragIdx ? dropIdx - 1 : dropIdx;
+        homeLinks.splice(Math.max(0, insertIdx), 0, moved);
+        saveHomeLinks();
+        renderHomeLinks();
+        return;
+      }
+
+      // External drop — extract URL
+      let url = e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain') || '';
+      url = url.split('\n').filter(l => !l.startsWith('#'))[0] || '';
+      url = url.trim();
+      if (!/^https?:\/\//i.test(url)) return;
+
+      let name;
+      try { const u = new URL(url); name = u.hostname.replace(/^www\./, ''); } catch { name = url; }
+      homeLinks.push({ id: Date.now(), name, url });
+      saveHomeLinks();
+      renderHomeLinks();
+    });
+
+    // Context menu actions
+    homeCtxMenu.addEventListener('click', e => {
+      const action = e.target.dataset.action;
+      if (!action || homeCtxTargetId === null) return;
+      const idx = homeLinks.findIndex(l => l.id === homeCtxTargetId);
+      if (idx === -1) { homeCtxMenu.style.display = 'none'; return; }
+
+      if (action === 'edit') {
+        const link = homeLinks[idx];
+        const newName = prompt('Name:', link.name);
+        if (newName === null) { homeCtxMenu.style.display = 'none'; return; }
+        const newUrl = prompt('URL:', link.url);
+        if (newUrl === null) { homeCtxMenu.style.display = 'none'; return; }
+        link.name = newName;
+        link.url = newUrl;
+        saveHomeLinks();
+        renderHomeLinks();
+      } else if (action === 'delete') {
+        if (confirm(`Delete "${homeLinks[idx].name}"?`)) {
+          homeLinks.splice(idx, 1);
+          saveHomeLinks();
+          renderHomeLinks();
+        }
+      }
+      homeCtxMenu.style.display = 'none';
+      homeCtxTargetId = null;
+    });
+
+    document.addEventListener('click', () => { homeCtxMenu.style.display = 'none'; });
+
+    renderHomeLinks();
+  </script>
+</body>
+</html>
